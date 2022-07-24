@@ -17,7 +17,7 @@ var pendulumAngle = (T0, w, t) =>
 {
   let ep = (1.0 - (Math.cos(0.5*T0))**0.5) / (2.0 + 2.0 * (Math.cos(0.5 * T0))** 0.5);
   let q =  ep + 2.0 * ep**5 + 15.0 * ep**9 + 150 * ep**13 + 1707 * ep**17 + 20910 * ep**21
-  let n = 30;
+  let n = 10;
   let T = 0;
   let k = 1.0;
   for (let i = 1; i < n; i += 2)
