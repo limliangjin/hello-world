@@ -37,6 +37,8 @@ function setup() {
   .addRange("Gravity", 1, 10, 1, 0.1, function(value) { output("Gravity", value)})
   .addRange("Max Angle (°)", 0.1, 179.9, 45, 0.01, function(value) { output("Max Angle", value)})
   .setKey("o")
+
+  pixelDensity(1);
 }
 
 function draw() {
