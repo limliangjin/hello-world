@@ -14,7 +14,65 @@ const SHOW_THIRD_CIRCLE = "Show Third Circle"
 
 var spirograph = null;
 var settings = null;
+var eventHandler = null;
+var regenButton = null;
 var nCircles = 2;
+
+const isMobile = navigator.userAgentData.mobile;
+
+class P5Button{
+  constructor(eventHandler, x, y, w, h, text){
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.text = text;
+    this.color = "#FFF";
+    this.mouseOverColor = "#BBB";
+    eventHandler.add(this);
+  }
+
+  isMouseOver(){
+    return mouseX >= (this.x - this.w/2) && mouseX <= (this.x + this.w/2) &&
+    mouseY >= (this.y - this.h/2) && mouseY <= (this.y + this.h/2)
+  }
+
+  getColor(){
+    if (this.isMouseOver()) return this.mouseOverColor;
+    else return this.color;
+  }
+
+  draw(){
+    push();    
+    stroke(this.getColor());
+    strokeWeight(2);
+    rect(this.x - this.w/2, this.y - this.h/2, this.w,this.h);
+    textAlign(CENTER, CENTER);
+    strokeWeight(1);
+    textSize(0.6 * this.h);
+    text(this.text, this.x, this.y);
+    pop();
+  }
+
+  onClicked(){
+    if (!this.isMouseOver()) return;
+    spirograph.regenerateRandom();
+  }
+}
+
+class MouseEventHandler{
+  constructor(){
+    this.UIs = [];
+  }
+
+  add(ui){
+    this.UIs.push(ui);
+  }
+
+  checkOnClick(){
+    for (let ui of this.UIs) ui.onClicked();
+  }
+}
 
 // A class to compute a circular movement
 class CircleTool{
@@ -115,6 +173,17 @@ class SpiroGraph{
     this.drawPoints = [];
     this.t = 0;
   }
+
+  regenerateRandom(){
+    settings
+    for (let i = 0; i < N_CIRCLES; ++i){
+      let circleSize = round(random(1, 5));
+      let speed = random(1, 10);
+      settings
+      .setValue(`${CIRCLE_TOOL}${i}`, circleSize)
+      .setValue(`${ROTATION_SPEED}${i}`, speed);
+    }
+  }
 }
 
 function setup() {
@@ -122,13 +191,15 @@ function setup() {
   pixelDensity(1);
 
   spirograph = new SpiroGraph(N_CIRCLES);
+  eventHandler = new MouseEventHandler();  
+  regenButton = new P5Button(eventHandler, windowWidth / 2, 0.9 * windowHeight, 80, 80, "⟳");
 
   settings = QuickSettings.create(10, 10, SETTING_TITLE);
   settings.setCollapsible(true);
 
   for (let i = 0; i < N_CIRCLES; ++i){
     settings
-    .addRange(`${CIRCLE_TOOL}${i}`, 1, 10, 2, 1, function(value) {spirograph.reset();})
+    .addRange(`${CIRCLE_TOOL}${i}`, 1, 5, 2, 1, function(value) {spirograph.reset();})
     .addRange(`${ROTATION_SPEED}${i}`, 1.0, 10.0, 1.0, 0.1, function(value) {spirograph.reset();});
   }
 
@@ -150,11 +221,28 @@ function setup() {
 
   settings.addButton(RESET_DRAWING, function(value){spirograph.reset();});
   settings.addBoolean(DRAW_CIRCLES, true, function(value) {});
+  if (isMobile) settings.hide();
+}
+
+function drawTitle(){
+  push();
+  textAlign(CENTER, CENTER);
+  stroke('#FFF');
+  strokeWeight(1);
+  textSize(80);
+  text("Spirograph", windowWidth / 2, 100);
+  pop();
+}
+
+function drawUIs(){
+  regenButton.draw();
 }
 
 function draw() {
   background('#222');
   noFill();
+  drawTitle();
+  drawUIs();
 
   spirograph.compute();
   spirograph.draw();
@@ -163,4 +251,8 @@ function draw() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   spirograph.reset();
+}
+
+function mousePressed() {
+  eventHandler.checkOnClick();
 }
