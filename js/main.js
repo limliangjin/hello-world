@@ -1,83 +1,166 @@
 "use strict"
 
-var t = 0;
+// Global settings and variables
+const FS = 100;
+const MAX_DRAW_POINTS = 2000;
+const DEFAULT_RADIUS = 50;
+const N_CIRCLES = 3;
+const CIRCLE_TOOL = "Circle Tool ";
+const ROTATION_SPEED = "Rotation Speed ";
+const DRAW_CIRCLES = "Draw Circle Tools";
+const SETTING_TITLE = "Spirograph";
+const RESET_DRAWING = "Reset";
+const SHOW_THIRD_CIRCLE = "Show Third Circle"
+
+var spirograph = null;
 var settings = null;
-var L0, g0, angle00 = 0;
-var coolDown = 20;
+var nCircles = 2;
 
+// A class to compute a circular movement
+class CircleTool{
+  constructor(index){
+    this.index = index;
+    this.L = 0;
+    this.F = 0;
+    this.x = 0;
+    this.y = 0;
+    this.Ox = 0;
+    this.Oy = 0;
+    this.changed = true;
+  }
 
-var pendulumPeriod = (L, g, T0) =>
-{
-  let T = 2 * Math.PI * (L/g)**0.5;
-  T *= (1 + 1/16*T0**2 + 11/3072*T0**4 + 173/737280*T0**6 + 22931/1321205760*T0**8 + 1319183/951268147200*T0**10 + 233526463/2009078326886400*T0**12)
-  return T;
+  compute(t, Ox, Oy, F0){
+    let L = settings.getValue(`${CIRCLE_TOOL}${this.index}`) * DEFAULT_RADIUS;
+    let F = settings.getValue(`${ROTATION_SPEED}${this.index}`) * F0;
+    this.changed = (L != this.L || F != this.F);
+    this.L = L;
+    this.F = F;
+    this.Ox = Ox;
+    this.Oy = Oy;
+    let w = (-1)**this.index * this.F / FS;
+    this.x = this.L * Math.sin(w * t) + this.Ox;
+    this.y = this.L * Math.cos(w * t) + this.Oy;
+  }
+
+  draw(){
+    push();
+    // Draw the circle
+    stroke('#666');    
+    strokeWeight(2);
+    noFill();
+    ellipse(this.Ox, this.Oy, 2 * this.L);
+    line(this.Ox, this.Oy, this.x, this.y);
+    // Draw the anchor point
+    fill('#666');
+    if (this.index == 0) ellipse(this.Ox, this.Oy, 10);
+    ellipse(this.x, this.y, 10);
+    pop();
+  }
 }
 
-var pendulumAngle = (T0, w, t) =>
-{
-  let ep = (1.0 - (Math.cos(0.5*T0))**0.5) / (2.0 + 2.0 * (Math.cos(0.5 * T0))** 0.5);
-  let q =  ep + 2.0 * ep**5 + 15.0 * ep**9 + 150 * ep**13 + 1707 * ep**17 + 20910 * ep**21
-  let n = 10;
-  let T = 0;
-  let k = 1.0;
-  for (let i = 1; i < n; i += 2)
-  {
-    T += k*(1.0)**(i / 2.0) / i * q**(0.5 * i) / (1.0 + q**i) * Math.cos(i * w * t);
-    k *= -1.0;
+// Main spirograph class, contains a collection of CircleTools,
+// and is responsible in computing the movement path of the circles.
+class SpiroGraph{
+  constructor(nCircles){
+    this.nCircles = nCircles;
+    this.circleTools = [];
+    for (let i = 0; i < nCircles; ++i){
+      this.circleTools.push(new CircleTool(i));
+    }
+
+    this.t = 0; // global tick
+    this.xF = 0;
+    this.yF = 0;
+    this.drawPoints = [];
   }
-  T *= 8.0;
-  return T;
+
+  compute(){
+    let currentX = windowWidth / 2;
+    let currentY = windowHeight / 2;
+    let F0 = 1;
+    for (let i = 0; i < this.nCircles; ++i){
+      this.circleTools[i].compute(this.t, currentX, currentY, F0);
+      currentX = this.circleTools[i].x;
+      currentY = this.circleTools[i].y;
+      F0 = this.circleTools[i].F;
+    }
+
+    this.xF = currentX;
+    this.yF = currentY;
+    this.drawPoints.push([this.xF, this.yF]);
+    if (this.drawPoints.length > MAX_DRAW_POINTS) this.drawPoints.shift();
+    this.t++;
+  }
+
+  draw(){
+    push();
+    stroke('#07C');
+    strokeWeight(3);  
+    beginShape();
+    for (point of this.drawPoints){
+      curveVertex(point[0], point[1]);
+    }
+    endShape();
+
+    let drawCircles = settings.getValue(DRAW_CIRCLES);
+    if (drawCircles){
+      for (let i = 0; i < this.nCircles; ++i){
+        this.circleTools[i].draw();
+      }
+    }
+    ellipse(this.xF, this.yF, 10);
+  }
+
+  reset(){
+    this.drawPoints = [];
+    this.t = 0;
+  }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  settings = QuickSettings.create(10, 10, 'Pendulum');
-  settings.setCollapsible(true);
-  settings.addRange("Length", 120, 700, 300, 1, function(value) { output("Length", value)})
-  .addRange("Gravity", 1, 10, 1, 0.1, function(value) { output("Gravity", value)})
-  .addRange("Max Angle (°)", 0.1, 179.9, 45, 0.01, function(value) { output("Max Angle", value)})
-  .setKey("o")
-
   pixelDensity(1);
+
+  spirograph = new SpiroGraph(N_CIRCLES);
+
+  settings = QuickSettings.create(10, 10, SETTING_TITLE);
+  settings.setCollapsible(true);
+
+  for (let i = 0; i < N_CIRCLES; ++i){
+    settings
+    .addRange(`${CIRCLE_TOOL}${i}`, 1, 10, 2, 1, function(value) {spirograph.reset();})
+    .addRange(`${ROTATION_SPEED}${i}`, 1.0, 10.0, 1.0, 0.1, function(value) {spirograph.reset();});
+  }
+
+  settings.addBoolean(SHOW_THIRD_CIRCLE, false,
+    function(value){      
+      if (value) {
+        spirograph.nCircles = 3;
+        settings.showControl(`${CIRCLE_TOOL}2`);
+        settings.showControl(`${ROTATION_SPEED}2`);
+      }
+      else{
+        spirograph.nCircles = 2;
+        settings.hideControl(`${CIRCLE_TOOL}2`);
+        settings.hideControl(`${ROTATION_SPEED}2`);
+      }
+      spirograph.reset();
+  });
+  settings.setValue(SHOW_THIRD_CIRCLE, false);
+
+  settings.addButton(RESET_DRAWING, function(value){spirograph.reset();});
+  settings.addBoolean(DRAW_CIRCLES, true, function(value) {});
 }
 
 function draw() {
-
-  let midX = windowWidth / 2;
-  let midY = windowHeight / 2;
-
   background('#222');
-  fill('#07C');
-  noStroke();
+  noFill();
 
-  let L = settings.getValue("Length");
-  let g = settings.getValue("Gravity");;
-  let angle0 = settings.getValue("Max Angle (°)")  / 180 * Math.PI;
-  let period = pendulumPeriod(L, g, angle0);
-
-  if (L0 != L || g0 != g || angle00 != angle0)
-  {
-    coolDown = 10;
-    L0 = L;
-    g0 = g;
-    angle00 = angle0;
-  }
-
-  coolDown -= 1;
-  if (coolDown > 0) t = 0;
-  else t += 1;
-  let T = pendulumAngle(angle0, 2 * Math.PI / period, t);
-
-
-  translate(midX, midY)
-  rotate(T)
-  fill('#038');
-  rect(-5, -5, 10, L);
-  fill('#07C');
-  ellipse(0, L, 100, 100);
-  ellipse(0, 0, 50, 50);
+  spirograph.compute();
+  spirograph.draw();
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  spirograph.reset();
 }
