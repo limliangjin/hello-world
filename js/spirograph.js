@@ -20,60 +20,6 @@ var nCircles = 2;
 
 const isMobile = navigator.userAgentData.mobile;
 
-class P5Button{
-  constructor(eventHandler, x, y, w, h, text){
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.text = text;
-    this.color = "#FFF";
-    this.mouseOverColor = "#BBB";
-    eventHandler.add(this);
-  }
-
-  isMouseOver(){
-    return mouseX >= (this.x - this.w/2) && mouseX <= (this.x + this.w/2) &&
-    mouseY >= (this.y - this.h/2) && mouseY <= (this.y + this.h/2)
-  }
-
-  getColor(){
-    if (this.isMouseOver()) return this.mouseOverColor;
-    else return this.color;
-  }
-
-  draw(){
-    push();    
-    stroke(this.getColor());
-    strokeWeight(2);
-    rect(this.x - this.w/2, this.y - this.h/2, this.w,this.h);
-    textAlign(CENTER, CENTER);
-    strokeWeight(1);
-    textSize(0.6 * this.h);
-    text(this.text, this.x, this.y);
-    pop();
-  }
-
-  onClicked(){
-    if (!this.isMouseOver()) return;
-    spirograph.regenerateRandom();
-  }
-}
-
-class MouseEventHandler{
-  constructor(){
-    this.UIs = [];
-  }
-
-  add(ui){
-    this.UIs.push(ui);
-  }
-
-  checkOnClick(){
-    for (let ui of this.UIs) ui.onClicked();
-  }
-}
-
 // A class to compute a circular movement
 class CircleTool{
   constructor(index){
@@ -103,7 +49,7 @@ class CircleTool{
   draw(){
     push();
     // Draw the circle
-    stroke('#666');    
+    stroke('#666');
     strokeWeight(2);
     noFill();
     ellipse(this.Ox, this.Oy, 2 * this.L);
@@ -191,8 +137,13 @@ function setup() {
   pixelDensity(1);
 
   spirograph = new SpiroGraph(N_CIRCLES);
-  eventHandler = new MouseEventHandler();  
-  regenButton = new P5Button(eventHandler, windowWidth / 2, 0.9 * windowHeight, 80, 80, "⟳");
+  eventHandler = new MouseEventHandler();
+  regenButton = new P5Button(
+    eventHandler,
+    windowWidth / 2, 0.9 * windowHeight,
+    80, 80,
+    "⟳",
+    spirograph.regenerateRandom);
 
   settings = QuickSettings.create(10, 10, SETTING_TITLE);
   settings.setCollapsible(true);
@@ -204,7 +155,7 @@ function setup() {
   }
 
   settings.addBoolean(SHOW_THIRD_CIRCLE, false,
-    function(value){      
+    function(value){
       if (value) {
         spirograph.nCircles = 3;
         settings.showControl(`${CIRCLE_TOOL}2`);
