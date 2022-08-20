@@ -25,7 +25,7 @@ class P5Button{
   }
 
   draw(){
-    fill('#222')
+    fill('#333')
     rect(this.x - this.w/2, this.y - this.h/2, this.w,this.h);
     push();
     stroke('#FFF');

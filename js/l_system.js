@@ -58,6 +58,7 @@ function setTreeRule(){
   options.state.x = canvas.width / 2;
   options.state.y = 3 * canvas.height / 4;
   options.state.currentAngle = -90;
+  options.title = 'Tree';
 }
 
 // DRAGON Rule --------------------------------------------------------
@@ -79,6 +80,7 @@ function setDragonRule(){
   options.state.x = canvas.width / 2;
   options.state.y = canvas.height / 3;
   options.state.currentAngle = -90;
+  options.title = 'Dragon';
 }
 
 // Sierpinski Triangle Rule --------------------------------------------------------
@@ -102,6 +104,7 @@ function setSierpinskiTriangleRule(){
   options.state.currentAngle = 0;
   options.drawFrequency = 10;
   options.state.currentAngle = 0;
+  options.title = 'Sierpinski Triangle';
 }
 
 // KochKnot Rule --------------------------------------------------------
@@ -123,6 +126,7 @@ function setKochIslandRule(){
   options.state.y = 2 * canvas.height / 3;
   options.state.currentAngle = 0;
   options.drawFrequency = 20;
+  options.title = 'Koch Island';
 }
 
 // Gosper Rule --------------------------------------------------------
@@ -146,6 +150,7 @@ function setGosperRule(){
   options.state.currentAngle = 0;
   options.drawFrequency = 20;
   options.state.currentAngle = -25;
+  options.title = 'Gosper';
 }
 
 // Binary fractal Rule --------------------------------------------------------
@@ -169,6 +174,7 @@ function setBinaryFractalRule(){
   options.state.currentAngle = 0;
   options.drawFrequency = 20;
   options.state.currentAngle = -90;
+  options.title = 'Binary Fractal';
 }
 
 //Cantor Set Rule --------------------------------------------------------
@@ -191,6 +197,55 @@ function setCantorSetRule(){
   options.state.currentAngle = 0;
   options.drawFrequency = 20;
   options.state.currentAngle = -90;
+  options.title = 'Cantor';
+}
+
+//Taurus Rule --------------------------------------------------------
+function setTaurusRule(){
+  options.nIterations = 12;
+  options.turnAngle = 90;
+  options.drawLength = 5;
+  options.initial = 'F';
+  options.rules[0] = ['X', 'F+F-'];
+  options.rules[1] = ['F', 'X+X-'];
+  options.currentCharId = 0;
+  options.generatedString = options.initial;
+
+  for (let i = 0; i < options.nIterations; ++i){
+    options.generatedString = lindenmayer(options.generatedString);
+  }
+
+  options.savedState = [];
+  options.state.x = 0.45 * canvas.width;
+  options.state.y = 1 * canvas.height / 2;
+  options.state.currentAngle = 0;
+  options.drawFrequency = 20;
+  options.state.currentAngle = -180;
+  options.title = 'Taurus';
+}
+
+//Taurus Rule --------------------------------------------------------
+function setNewRule(){
+  options.nIterations = 10;
+  options.turnAngle = 45;
+  options.drawLength = 10;
+  options.initial = 'F';
+  options.rules[0] = ['X', 'FF+XX'];
+  options.rules[1] = ['F', 'XX-FF'];
+  options.currentCharId = 0;
+  options.generatedString = options.initial;
+
+  for (let i = 0; i < options.nIterations; ++i){
+    options.generatedString = lindenmayer(options.generatedString);
+  }
+
+  options.savedState = [];
+  options.state.x = 0.45 * canvas.width;
+  options.state.y = 1 * canvas.height / 2;
+  options.state.currentAngle = 0;
+  options.drawFrequency = 100;
+  options.state.currentAngle = -180;
+  options.title = 'Taurus';
 }
 
 var RULES = [
@@ -200,7 +255,9 @@ var RULES = [
   setDragonRule,
   setTreeRule,
   setBinaryFractalRule,
-  setCantorSetRule
+  setCantorSetRule,
+  setTaurusRule,
+  //setNewRule
 ];
 
 var currentRuleId = 0;
@@ -209,6 +266,7 @@ var initialize = ()=> {
   changeRule();
   background('#222');
   drawTitle();
+  drawSubTitle();
 }
 
 var eventHandler = null
@@ -293,8 +351,19 @@ function drawTitle(){
   noFill();
   stroke('#FFF');
   strokeWeight(2);
-  textSize(80);
-  text("L-System", windowWidth / 2, 100);
+  textSize(50);
+  text("L-System", windowWidth / 2, windowHeight / 12);
+  pop();
+}
+
+function drawSubTitle(){
+  push();
+  textAlign(CENTER, CENTER);
+  noFill();
+  stroke('#FFF');
+  strokeWeight(1);
+  textSize(30);
+  text(options.title, windowWidth / 2, windowHeight / 8);
   pop();
 }
 
