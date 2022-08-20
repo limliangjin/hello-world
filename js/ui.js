@@ -42,6 +42,7 @@ class P5Button{
 
   onClicked(){
     if (!this.isMouseOver()) return;
+    window.navigator.vibrate(200);
     this.callFunction();
   }
 }
