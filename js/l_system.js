@@ -16,7 +16,8 @@ var options = {
   generatedString: '',
   currentCharId: 0,
   canvas: null,
-  ruleFunction: null
+  ruleFunction: null,
+  lRate: 1000.0
 }
 
 // interpret an L-system
@@ -87,7 +88,7 @@ function setDragonRule(){
 function setSierpinskiTriangleRule(){
   options.nIterations = 7;
   options.turnAngle = 60;
-  options.drawLength = 5;
+  options.drawLength = 3;
   options.initial = 'F-G-G';
   options.rules[0] = ['F', 'G-F-G'];
   options.rules[1] = ['G', 'F+G+F'];
@@ -175,13 +176,14 @@ function setBinaryFractalRule(){
   options.drawFrequency = 20;
   options.state.currentAngle = -90;
   options.title = 'Binary Fractal';
+  options.lRate = 100;
 }
 
 //Cantor Set Rule --------------------------------------------------------
 function setCantorSetRule(){
-  options.nIterations = 4;
+  options.nIterations = 5;
   options.turnAngle = 90;
-  options.drawLength = 10;
+  options.drawLength = 3;
   options.initial = 'F';
   options.rules[0] = ['F', 'F+F-F-F+F'];
   options.currentCharId = 0;
@@ -198,6 +200,7 @@ function setCantorSetRule(){
   options.drawFrequency = 20;
   options.state.currentAngle = -90;
   options.title = 'Cantor';
+  options.lRate = 100;
 }
 
 //Taurus Rule --------------------------------------------------------
@@ -224,14 +227,14 @@ function setTaurusRule(){
   options.title = 'Taurus';
 }
 
-//Taurus Rule --------------------------------------------------------
-function setNewRule(){
-  options.nIterations = 10;
-  options.turnAngle = 45;
-  options.drawLength = 10;
-  options.initial = 'F';
-  options.rules[0] = ['X', 'FF+XX'];
-  options.rules[1] = ['F', 'XX-FF'];
+//Quadratic Gosper Rule --------------------------------------------------------
+function setQuadraticGosperRule(){
+  options.nIterations = 3;
+  options.turnAngle = 90;
+  options.drawLength = 5;
+  options.initial = '-YF';
+  options.rules[0] = ['X', 'XFX-YF-YF+FX+FX-YF-YFFX+YF+FXFXYF-FX+YF+FXFX+YF-FXYF-YF-FX+FX+YFYF-'];
+  options.rules[1] = ['Y', '+FXFX-YF-YF+FX+FXYF+FX-YFYF-FX-YF+FXYFYF-FX-YFFX+FX+YF-YF-FX+FX+YFY'];
   options.currentCharId = 0;
   options.generatedString = options.initial;
 
@@ -240,12 +243,88 @@ function setNewRule(){
   }
 
   options.savedState = [];
-  options.state.x = 0.45 * canvas.width;
-  options.state.y = 1 * canvas.height / 2;
+  options.state.x = 0.65 * canvas.width;
+  options.state.y = 1 * canvas.height / 3;
   options.state.currentAngle = 0;
   options.drawFrequency = 100;
   options.state.currentAngle = -180;
-  options.title = 'Taurus';
+  options.title = 'Quadratic Gosper';
+  options.lRate = 100;
+}
+
+//Square Sierpinski Rule --------------------------------------------------------
+function setSquareSierpinskiRule(){
+  options.nIterations = 5;
+  options.turnAngle = 90;
+  options.drawLength = 5;
+  options.initial = 'F+XF+F+XF';
+  options.rules[0] = ['X', 'XF-F+F-XF+F+XF-F+F-X'];
+  //options.rules[1] = ['Y', '+FXFX-YF-YF+FX+FXYF+FX-YFYF-FX-YF+FXYFYF-FX-YFFX+FX+YF-YF-FX+FX+YFY'];
+  options.currentCharId = 0;
+  options.generatedString = options.initial;
+
+  for (let i = 0; i < options.nIterations; ++i){
+    options.generatedString = lindenmayer(options.generatedString);
+  }
+
+  options.savedState = [];
+  options.state.x = 0.5 * canvas.width;
+  options.state.y = 2 * canvas.height / 3;
+  options.state.currentAngle = 0;
+  options.drawFrequency = 100;
+  options.state.currentAngle = -180;
+  options.title = 'Square Sierpinski';
+  options.lRate = 150;
+}
+
+//Crystal Rule --------------------------------------------------------
+function setCrystalRule(){
+  options.nIterations = 5;
+  options.turnAngle = 90;
+  options.drawLength = 2;
+  options.initial = 'F+F+F+F';
+  options.rules[0] = ['F', 'FF+F++F+F'];
+  //options.rules[1] = ['Y', '+FXFX-YF-YF+FX+FXYF+FX-YFYF-FX-YF+FXYFYF-FX-YFFX+FX+YF-YF-FX+FX+YFY'];
+  options.currentCharId = 0;
+  options.generatedString = options.initial;
+
+  for (let i = 0; i < options.nIterations; ++i){
+    options.generatedString = lindenmayer(options.generatedString);
+  }
+
+  options.savedState = [];
+  options.state.x = 0.6 * canvas.width;
+  options.state.y = 2 * canvas.height / 3;
+  options.state.currentAngle = 0;
+  options.drawFrequency = 100;
+  options.state.currentAngle = -180;
+  options.title = 'Crystal';
+  options.lRate = 150;
+}
+
+//Pentaplexity Rule --------------------------------------------------------
+function setPentaplexityRule(){
+  options.nIterations = 4;
+  options.turnAngle = 36;
+  options.drawLength = 8;
+  options.initial = 'F++F++F++F++F';
+  options.rules[0] = ['F', 'F++F++F|F-F++F'];
+  //options.rules[1] = ['Y', '+FXFX-YF-YF+FX+FXYF+FX-YFYF-FX-YF+FXYFYF-FX-YFFX+FX+YF-YF-FX+FX+YFY'];
+  options.currentCharId = 0;
+  options.generatedString = options.initial;
+
+  for (let i = 0; i < options.nIterations; ++i){
+    options.generatedString = lindenmayer(options.generatedString);
+  }
+
+  options.savedState = [];
+  options.state.x = 0.6 * canvas.width;
+  options.state.y = 2 * canvas.height / 3;
+  options.state.currentAngle = 0;
+  options.drawFrequency = 100;
+  options.state.currentAngle = -180;
+  options.title = 'Pentaplexity';
+  options.lRate = 150;
 }
 
 var RULES = [
@@ -257,7 +336,10 @@ var RULES = [
   setBinaryFractalRule,
   setCantorSetRule,
   setTaurusRule,
-  //setNewRule
+  setQuadraticGosperRule,
+  setSquareSierpinskiRule,
+  setCrystalRule,
+  setPentaplexityRule
 ];
 
 var currentRuleId = 0;
@@ -269,26 +351,26 @@ var initialize = ()=> {
   drawSubTitle();
 }
 
-var eventHandler = null
-var regenButton = null
+var gui = null;
+var regenButton = null;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  pixelDensity(1);
+  //pixelDensity(1);
   background('#222');
   stroke(150, 150, 0, 255);
   strokeWeight(2);
   noFill();
 
   initialize();
-  eventHandler = new MouseEventHandler();
-  regenButton = new P5Button(
-    eventHandler,
-    windowWidth / 2, 0.9 * windowHeight,
-    80, 80,
-    "⟳",
-    initialize);
-  regenButton.draw();
+  gui = createGui();
+  regenButton = createButton('⟳', windowWidth / 2 - 40, 0.9 * windowHeight, 80, 80);
+  regenButton.setStyle({
+    fillBg: color("#FFFFFF"),
+    rounding: 10,
+    textSize: 40
+  });
+  regenButton.onPress = initialize;
 }
 
 function windowResized() {
@@ -298,15 +380,17 @@ function windowResized() {
 var ca = 0;
 
 function draw() {
-  regenButton.draw();
+  drawGui();
   for (let i = 0; i < options.drawFrequency; ++i) {
     // draw the current character in the string:
     drawIt(options.generatedString[options.currentCharId]);
     // increment the point for where we're reading the string.
     // wrap around at the end.
     options.currentCharId++;
-    let cb = round((ca)%1020 / 4)
-    let c = color(`hsla(${cb}, 100%, 50%, 0.5)`)
+    let H = 255;
+    let S = 0;
+    let L = 25 * Math.sin(ca / options.lRate) + 50;
+    let c = color(`hsla(${H}, ${S}%, ${L}%, 1.0)`);
     stroke(c);
     ca++;
     if (options.currentCharId > options.generatedString.length-1) {
@@ -335,6 +419,8 @@ function drawIt(k) {
     options.state = options.savedState.pop();
   } else if (k == '[') {
     options.savedState.push({...options.state});
+  } else if (k == '|') {
+    options.state.currentAngle += 180; // turn left
   }
 }
 
@@ -365,8 +451,4 @@ function drawSubTitle(){
   textSize(30);
   text(options.title, windowWidth / 2, windowHeight / 8);
   pop();
-}
-
-function mousePressed() {
-  eventHandler.checkOnClick();
 }
