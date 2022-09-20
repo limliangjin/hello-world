@@ -321,29 +321,13 @@ function setup() {
 
   initialize();
   gui = createGui();
-  regenButton = createButton('֎', windowWidth / 2 - 40, 0.9 * windowHeight, 80, 80);
+  regenButton = createButton('֎', windowWidth / 2 - 60, 0.85 * windowHeight, 120, 120);
   regenButton.setStyle({
     fillBg: color("#FFFFFF"),
     rounding: 10,
-    textSize: 40
+    textSize: 80
   });
   regenButton.onPress = initialize;
-
-  colorButton = createButton('🌈', windowWidth / 2 - 120, 0.9 * windowHeight, 80, 80);
-  colorButton.setStyle({
-    fillBg: color("#FFFFFF"),
-    rounding: 10,
-    textSize: 40
-  });
-  colorButton.onPress = function(){
-    colorState++;
-    if (colorState % 2 == 0){
-      colorButton.label = '🌈';
-    }
-    else{
-      colorButton.label = '☯';
-    }
-  };
 }
 
 function windowResized() {
@@ -353,16 +337,9 @@ function windowResized() {
 var ca = 0;
 
 function getStrokeColor(){
-  let H = 255;
-  let S = 0;
+  let H = round(125 + 125 * Math.sin(2 * Math.PI * ca / 100));
+  let S = 100;
   let L = 50;
-  if (colorState % 2 == 0){
-    L = 25 * Math.sin(2 * Math.PI * ca / 100) + 50;
-  }
-  else {
-    S = 100;
-    H = round(125 + 125 * Math.sin(2 * Math.PI * ca / 100));
-  }
 
   let c = color(`hsla(${H}, ${S}%, ${L}%, 1.0)`);
   stroke(c);
