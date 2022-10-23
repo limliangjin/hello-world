@@ -32,7 +32,7 @@ var drawSliderValue = (s, label) =>{
   stroke('#b3cde0');
   noFill();
   textSize(30);
-  text(`${label} = ${round(s.val)}`, s.x + s.w + 30, s.y + 30);
+  text(`${label} = ${round(s.val*10)/10}`, s.x + s.w + 30, s.y + 30);
   pop();
 }
 
@@ -112,7 +112,7 @@ function drawGrid(result){
 
   push();
   noFill();
-  stroke('#333333');
+  stroke('#666');
   strokeWeight(1);
   textSize(20);
   let maxYTick = transformToScreen(result, 0, yTicks[yTicks.length - 2]);
@@ -146,6 +146,7 @@ function drawMohrCircle(){
   if (R == 0) return;
   let scaledP1 = transformToScreen(result, s1.val, tau.val);
   let scaledP2 = transformToScreen(result, s2.val, -tau.val);
+  let deg = 180 * Math.atan2(tau.val*2, s1.val - s2.val) / Math.PI;
 
   push();
   noFill();
@@ -156,16 +157,34 @@ function drawMohrCircle(){
   ellipse(scaledP1[0], scaledP1[1], 10, 10);
   ellipse(scaledP2[0], scaledP2[1], 10, 10);
   strokeWeight(1);
+  line(scaledP1[0], scaledP1[1], scaledP2[0], scaledP2[1])
+  textSize(35);
+  text(`[${round(s1.val*10)/10}, ${round(-tau.val*10)/10}]`, scaledP1[0], scaledP1[1]);
+  text(`[${round(s2.val*10)/10}, ${round(tau.val*10)/10}]`, scaledP2[0], scaledP2[1]);
+  text(`${round((deg)*10)/10}°`, Ox + 10, Oy + 10);
+  text(`${round((R - result.x)*10)/10}`, Ox - 0.5 * RRef - 50, Oy + 0.5 * RRef + 20);
+  text(`${round((R + result.x)*10)/10}`, Ox + 0.5 * RRef - 25, Oy - 0.5 * RRef);
+
+  drawingContext.setLineDash([2, 2]);
+  line(Ox - 0.5 * RRef, Oy, Ox - 0.5 * RRef, Oy + 0.45 * RRef);
+  line(Ox + 0.5 * RRef, Oy, Ox + 0.5 * RRef, Oy - 0.45 * RRef);
+  pop();
+}
+
+function drawTitle() {
+  push();
+  noFill();
+  stroke('#ffffff');
+  strokeWeight(1);
   textSize(50);
-  text(`[${round(s1.val)}, ${round(-tau.val)}]`, scaledP1[0], scaledP1[1]);
-  text(`[${round(s2.val)}, ${round(tau.val)}]`, scaledP2[0], scaledP2[1]);
+  text(`MOHR'S CIRCLE`, 0.5 * windowWidth - 200, 0.1 * windowHeight);
   pop();
 }
 
 function draw() {
   background('#222');
+  drawTitle();
   drawGui();
-
   updateSliderValues();
   drawMohrCircle();
 }
