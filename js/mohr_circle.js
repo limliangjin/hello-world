@@ -153,14 +153,20 @@ function drawMohrCircle(){
   stroke('#ffffff');
   strokeWeight(5);
   ellipse(Ox, Oy, 10, 10);
+
+  stroke('#005555');
+  strokeWeight(8);
   ellipse(Ox, Oy, RRef, RRef);
+  strokeWeight(5);
+
+  stroke('#ffffff');
   ellipse(scaledP1[0], scaledP1[1], 10, 10);
   ellipse(scaledP2[0], scaledP2[1], 10, 10);
   strokeWeight(1);
   line(scaledP1[0], scaledP1[1], scaledP2[0], scaledP2[1])
   textSize(35);
-  text(`[${round(s1.val*10)/10}, ${round(-tau.val*10)/10}]`, scaledP1[0], scaledP1[1]);
-  text(`[${round(s2.val*10)/10}, ${round(tau.val*10)/10}]`, scaledP2[0], scaledP2[1]);
+  text(`[${round(s1.val*10)/10}, ${round(-tau.val*10)/10}]`, scaledP1[0] + 20, scaledP1[1] + 20);
+  text(`[${round(s2.val*10)/10}, ${round(tau.val*10)/10}]`, scaledP2[0] + 20, scaledP2[1] + 20);
   text(`${round((deg)*10)/10}°`, Ox + 10, Oy + 10);
   text(`${round((R - result.x)*10)/10}`, Ox - 0.5 * RRef - 50, Oy + 0.5 * RRef + 20);
   text(`${round((R + result.x)*10)/10}`, Ox + 0.5 * RRef - 25, Oy - 0.5 * RRef);
