@@ -7,7 +7,7 @@ var s1;
 var s2;
 var tau;
 
-var addSlider = (name, level, minVal, maxVal) => {
+var addSlider = (name, level, minVal, maxVal, defValue) => {
   let s = createSlider(
     name,
     0.5 * windowWidth - 500 / 2,
@@ -24,6 +24,7 @@ var addSlider = (name, level, minVal, maxVal) => {
     strokeHandle: color('#ffffff'),
     strokeBg: color("#ffffff"),
   });
+  s.val = defValue;
   return s;
 }
 
@@ -42,9 +43,9 @@ function setup() {
   background('#222');
 
   gui = createGui();
-  s1 = addSlider('stress1', 0, -100, 100);
-  s2 = addSlider('stress2', 1, -100, 100);
-  tau = addSlider('tau', 2, -100, 100);
+  s1 = addSlider('stress1', 0, -100, 100, 25);
+  s2 = addSlider('stress2', 1, -100, 100, 33);
+  tau = addSlider('tau', 2, -100, 100, 5);
 }
 
 function windowResized() {
